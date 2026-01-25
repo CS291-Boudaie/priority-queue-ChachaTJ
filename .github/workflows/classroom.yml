@@ -1,0 +1,44 @@
+name: Autograding Tests
+'on': push
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Test Min Heap
+      - name: Test Min Heap
+        id: test-min-heap
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test Min Heap
+          command: python -m unittest test_heap_and_queue.TestMinHeap
+          timeout: 15
+          max-score: 10
+
+      # Test Priority Queue
+      - name: Test Priority Queue
+        id: test-priority-queue
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test Priority Queue
+          command: python -m unittest test_heap_and_queue.TestPriorityQueue
+          timeout: 15
+          max-score: 10
+
+      # Autograding Reporter
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          TEST-MIN-HEAP_RESULTS: "${{steps.test-min-heap.outputs.result}}"
+          TEST-PRIORITY-QUEUE_RESULTS: "${{steps.test-priority-queue.outputs.result}}"
+        with:
+          runners: >
+            test-min-heap,
+            test-priority-queue
